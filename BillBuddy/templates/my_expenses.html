@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% extends "base.html" %}
+    <style>
+      body {
+        background-color: #000000;
+        color: #ffffff;
+      }
+
+      a,
+      .footer {
+        color: #00623f;
+      }
+
+      h1 {
+        color: #ffffff;
+      }
+
+      li {
+        display: inline-block;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    {% block content %}
+    <h1
+      style="
+        text-align: center;
+        font-size: 50px;
+        text-decoration: underline white double;
+      "
+    >
+      My Split Expenses
+    </h1>
+    <div style="margin: auto; width: 50%">
+      <table style="margin: 0 auto; width: 50%">
+        <tr>
+          <th
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            Payable To
+          </th>
+          <th
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            Description
+          </th>
+          <th
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            Amount
+          </th>
+          <th
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            Status
+          </th>
+        </tr>
+        {% for expense in expense_data: %}
+        <tr>
+          <td
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            {{ expense.payable_to }}
+          </td>
+          <td
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            {{ expense.description }}
+          </td>
+          <td
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            {{ expense.amount }}
+          </td>
+          <td
+            style="
+              border: #00623f 0.5em groove;
+              border-collapse: collapse;
+              text-align: center;
+            "
+          >
+            {{ expense.status }}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    {% endblock %}
+  </body>
+</html>

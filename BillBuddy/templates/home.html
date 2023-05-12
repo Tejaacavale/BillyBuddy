@@ -1,0 +1,99 @@
+{% extends "base.html" %} {% block content %}
+<body
+  style="
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    margin: 0;
+  "
+>
+  <h1
+    style="
+      text-align: center;
+      font-weight: bolder;
+      text-decoration: underline white wavy;
+      margin: 30px 0;
+    "
+  >
+    MY GROUPS
+  </h1>
+  <h4 style="text-align: center">
+    Welcome {{ user.username }}, check out the groups you are currently a member
+    of :)
+  </h4>
+  <form action="/create_group" style="text-align: center; margin-bottom: 20px">
+    <input
+      type="submit"
+      value="ADD GROUP"
+      style="
+        background-color: #00623f;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-transform: uppercase;
+        cursor: pointer;
+        font-weight: bold;
+      "
+    />
+  </form>
+  <ul style="list-style-type: none; margin-left: -3vw">
+    {% for group in groups: %}
+    <li>
+      <div
+        class="group"
+        style="
+          border: 1em #00623f groove;
+          margin: 20px;
+          padding: 20px;
+          background-color: #222;
+        "
+      >
+        <h3 style="text-align: center; color: #ffffff; margin: 0 0 10px">
+          <a
+            style="color: inherit; text-decoration: none"
+            href="/group_{{ group.id }}"
+            >{{ group.name }}</a
+          >
+        </h3>
+        <h5 style="text-align: center; color: #ffffff; margin: 0 0 10px">
+          Number of participants: {{ group.num }}
+        </h5>
+        <form style="text-align: right; padding: 5px">
+          <input
+            type="submit"
+            value="REMOVE GROUP"
+            onclick="handleRemoveGroup(event, '{{ group.id }}')"
+            style="
+              background-color: #00623f;
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              text-transform: uppercase;
+              cursor: pointer;
+              font-weight: bold;
+            "
+          />
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <script>
+    function handleRemoveGroup(event, groupId) {
+      event.preventDefault();
+      console.log(groupId);
+      if (confirm("Are you sure you want to remove this group?")) {
+        fetch(`/remove_group/${groupId}`, { method: "POST" }).then(
+          (response) => {
+            if (response.ok) {
+              window.location.reload();
+            } else {
+              alert("Failed to remove group.");
+            }
+          }
+        );
+      }
+    }
+  </script>
+</body>
+{% endblock %}

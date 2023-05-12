@@ -1,0 +1,58 @@
+{% extends 'base.html' %} {% block content %}
+<h1 style="text-align: center">Login</h1>
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+<form method="POST" action="{{ url_for('login') }}" style="text-align: center">
+  <label for="username" style="display: block; margin-bottom: 10px"
+    >Username:</label
+  >
+  <input
+    type="text"
+    id="username"
+    name="username"
+    style="
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px #ddd;
+      width: 250px;
+    "
+    required
+  />
+  <br />
+  <label
+    for="password"
+    style="display: block; margin-bottom: 10px; margin-top: 10px"
+    >Password:</label
+  >
+  <input
+    type="password"
+    id="password"
+    name="password"
+    style="
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px #ddd;
+      width: 250px;
+    "
+    required
+  />
+  <br />
+  <button
+    type="submit"
+    style="
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #00623f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    "
+  >
+    Login
+  </button>
+</form>
+{% endblock %}

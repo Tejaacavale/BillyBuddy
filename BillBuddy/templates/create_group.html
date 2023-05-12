@@ -1,0 +1,175 @@
+{% extends "base.html" %} {% block content %}
+<div class="container" style="text-align: center; font-family: Arial, sans-serif; width: 50%; margin: 0 auto;">
+  <h1 style="margin-bottom: 30px;">Create Group</h1>
+  <form action="{{ url_for('create_group') }}" method="post">
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label for="group_name" style="display: block;">Group Name</label>
+      <input
+        type="text"
+        name="group_name"
+        id="group_name"
+        class="form-control"
+        required
+        style="width: 100%; padding: 6px 12px; font-size: 14px; line-height: 1.42857143; color: #555; background-color: #fff; background-image: none; border: 1px solid #ccc; border-radius: 4px;"
+      />
+    </div>
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label for="num_participants" style="display: block;">Number of Participants</label>
+      <select
+        name="num_participants"
+        id="num_participants"
+        class="form-control"
+        required
+        style="width: 100%; padding: 6px 12px; font-size: 14px; line-height: 1.42857143; color: #555; background-color: #fff; background-image: none; border: 1px solid #ccc; border-radius: 4px;"
+      >
+        <option value="0" selected disabled>
+          Select number of participants
+        </option>
+        {% for i in range(2, 33) %}
+        <option value="{{ i }}">{{ i }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div id="participants" style="display: none">
+      {% for user in users %}
+      <div class="form-check" style="margin-bottom: 10px;">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="participants"
+          id="participant_{{ user.id }}"
+          value="{{ user.id }}"
+          data-user-id="{{ user.id }}"
+          style="position: relative; float: left; margin-right: 5px;"
+        />
+        <label class="form-check-label" for="participant_{{ user.id }}"
+          >{{ user.username }}</label
+        >
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="background-color: #00623f; color: white; border: none; padding: 10px 20px; text-transform: uppercase; cursor: pointer; font-weight: bold; margin-top: 20px;">Create Group</button>
+  </form>
+</div>
+
+
+
+<script>
+  const numParticipants = document.querySelector("#num_participants");
+  const participants = document.querySelector("#participants");
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  const form = document.querySelector("form");
+
+  numParticipants.addEventListener("input", (event) => {
+    const num = event.target.value;
+    if (num > 0) {
+      participants.style.display = "block";
+      for (let i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = false;
+        checkboxes[i].disabled = false;
+      }
+      limitCheckboxes(num);
+    } else {
+      participants.style.display = "none";
+    }
+  });
+
+  function limitCheckboxes(num) {
+    const currentUserId = "{{ current_user_id }}";
+
+    for (let i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].getAttribute("data-user-id") === currentUserId) {
+        checkboxes[i].checked = true;
+        checkboxes[i].disabled = true;
+      }
+
+      checkboxes[i].addEventListener("click", () => {
+        const checkedCount = document.querySelectorAll(
+          'input[type="checkbox"]:checked'
+        ).length;
+        if (checkedCount >= num) {
+          for (let j = 0; j < checkboxes.length; j++) {
+            if (!checkboxes[j].checked) {
+              checkboxes[j].disabled = true;
+            }
+          }
+        } else {
+          for (let j = 0; j < checkboxes.length; j++) {
+            if (checkboxes[j].getAttribute("data-user-id") !== currentUserId) {
+              checkboxes[j].disabled = false;
+            }
+          }
+        }
+      });
+    }
+  }
+
+  function initializeCurrentCheckbox() {
+    const currentUserId = "{{ current_user_id }}";
+    document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+      const userId = checkbox.getAttribute("data-user-id");
+      if (userId === currentUserId) {
+        checkbox.checked = true;
+        checkbox.disabled = true;
+      }
+    });
+  }
+
+  function initializeCurrentCheckbox() {
+    const currentUserId = "{{ current_user_id }}";
+    document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+      const userId = checkbox.getAttribute("data-user-id");
+      if (userId === currentUserId) {
+        checkbox.checked = true;
+        checkbox.disabled = true;
+      }
+    });
+  }
+
+  initializeCurrentCheckbox();
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const groupData = {
+      group_name: form.group_name.value,
+      participants: Array.from(form.participants)
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => checkbox.value),
+    };
+    console.log(groupData);
+    fetch(form.action, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(groupData),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Failed to create group");
+        }
+      })
+      .then((data) => {
+        alert(`Group "${data.group_name}" created successfully!`);
+        window.location.href = "/home";
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Error creating group. Please try again.");
+      });
+  });
+  const currentUserId = "{{ current_user_id }}";
+
+  document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+    const userId = checkbox.getAttribute("data-user-id");
+    if (userId === currentUserId) {
+      checkbox.checked = true;
+      checkbox.disabled = true;
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #000000;
+        color: #ffffff;
+      }
+      a,
+      .footer {
+        color: #00623f;
+      }
+
+      h1 {
+        color: #ffffff;
+      }
+
+      li {
+        display: inline-block;
+        padding: 10px;
+      }
+      .color-box {
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        vertical-align: middle;
+      }
+      .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+    </style>
+  </head>
+  <body>
+    <nav style="text-align: center; font-size: 18px">
+      <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+        <li><a href="/my_expenses">My Expenses</a></li>
+      </ul>
+    </nav>
+    <h1
+      style="
+        text-align: center;
+        font-size: 100px;
+        text-decoration: underline white double;
+      "
+    >
+      BILL BUDDY
+    </h1>
+    <h2 style="text-align: center; color: #ffffff">{{ group_name }}</h2>
+    <div
+      class="new-transaction"
+      style="
+        text-align: center;
+        border: 0.5em #00623f groove;
+        margin-bottom: 2em;
+        background-color: #222;
+      "
+    >
+      <h4>Add a New Transaction</h4>
+      <form method="POST" action="/add_transaction" style="font-size: 18px">
+        <input hidden name="group_name" value="{{group_name}}" />
+        <label for="description" style="color: #ffffff">Description:</label>
+        <input type="text" name="description" id="description" required />
+        <br /><br />
+        <label for="amount" style="color: #ffffff">Amount:</label>
+        <input
+          type="number"
+          name="amount"
+          id="amount"
+          step="0.01"
+          min="0"
+          required
+        />
+        <br /><br />
+        <input
+          type="submit"
+          value="Add Transaction"
+          style="
+            font-size: 18px;
+            background-color: #00623f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: bold;
+          "
+        />
+      </form>
+      <script>
+        function addTransaction() {
+          var group = "{{ group_name }}";
+          var description = document.getElementById("description").value;
+          var total_amount = parseFloat(
+            document.getElementById("amount").value
+          );
+
+          fetch("/add_transaction", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              group_name: group,
+              description: description,
+              total_amount: total_amount,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
+      </script>
+    </div>
+
+    <div class="transactions" style="float: left; width: 70%">
+      <h4 style="color: #ffffff">TRANSACTIONS:</h4>
+      <ul style="list-style-type: none; margin-left: -3vw; font-size: 18px">
+        {% for transaction in transactions: %}
+        <li>
+          <div
+            class="transaction_tile"
+            style="
+              border: 1em #00623f groove;
+              text-align: center;
+              padding: 30px;
+              background-color: #222;
+            "
+          >
+            <h5>
+              <a style="color: inherit" href="/transaction_{{ transaction.id }}"
+                >{{ transaction.name }} - {{ transaction.id }}</a
+              >
+            </h5>
+            <h5 style="color: #ffffff">STARTED BY: {{ transaction.user }}</h5>
+            <h6 style="color: #ffffff">
+              PAYMENT STATUS: {{ transaction.type }} {% if(transaction.status ==
+              "paid"): %} {% if(transaction.type == "NEED TO BE PAID"): %}
+              {%if(transaction.emp_status == 'paid') %}
+              <span class="color-box" style="background-color: green"></span>
+              <button
+                type="button"
+                onclick="deleteTransaction('{{transaction.id}}')"
+                style="
+                  font-size: 18px;
+                  background-color: #00623f;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  text-transform: uppercase;
+                  cursor: pointer;
+                  font-weight: bold;
+                "
+              >
+                Resolve
+              </button>
+              {% else %}
+              <span class="color-box" style="background-color: red"></span>
+              {% endif %} {% else %}
+              <span class="color-box" style="background-color: green"></span>
+              {% endif %} {% else %}
+              <span class="color-box" style="background-color: red"></span>
+              {% if(transaction.type == "NEED TO PAY"): %}
+              <button
+                id="pay-button"
+                type="button"
+                onclick="markPaid('{{transaction.id}}')"
+                style="
+                  font-size: 18px;
+                  background-color: #00623f;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  text-transform: uppercase;
+                  cursor: pointer;
+                  font-weight: bold;
+                "
+              >
+                Pay
+              </button>
+              {% endif %} {% endif %}
+            </h6>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div
+      class="members"
+      style="
+        border: 1em #00623f groove;
+        float: right;
+        width: 25%;
+        margin-bottom: 2em;
+        background-color: #222;
+      "
+    >
+      <h4 style="color: #ffffff">MEMBERS:</h4>
+      <ol style="font-size: 18px">
+        {% for member in members: %}
+        <li style="display: list-item; color: #ffffff">{{ member }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+    <!-- <footer style="margin-bottom: 0">&copy; My Flask App 2023</footer> -->
+
+    <script>
+      function markPaid(transactionId) {
+        console.log(transactionId);
+        // Send an AJAX request to the Flask route with the transaction ID
+        fetch("/mark_paid/" + transactionId).then((response) => {
+          if (response.ok) {
+            // If the update is successful, reload the page to show the new status
+            window.location.reload();
+          } else {
+            // If the update fails, show an error message
+            alert("Error marking transaction as paid.");
+          }
+        });
+      }
+      function deleteTransaction(expenseId) {
+        console.log(expenseId);
+        // Send an AJAX request to the Flask route with the expense ID
+        fetch("/delete/" + expenseId).then((response) => {
+          if (response.ok) {
+            // If the delete is successful, reload the page to remove the deleted transaction
+            window.location.reload();
+          } else {
+            // If the delete fails, show an error message
+            alert("Error deleting transaction.");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

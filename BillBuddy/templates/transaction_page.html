@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        background-color: #000000;
+        color: #ffffff;
+      }
+
+      a,
+      .footer {
+        color: #00623f;
+      }
+
+      h1 {
+        color: #ffffff;
+      }
+
+      li {
+        display: inline-block;
+        padding: 10px;
+      }
+      .transaction-details {
+        float: left;
+        width: 70%;
+      }
+      .color-box {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+      }
+      .chart {
+        float: right;
+        width: 25%;
+      }
+      .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+        <li><a href="/my_expenses">My Expenses</a></li>
+      </ul>
+    </nav>
+    <h1
+      style="
+        text-align: center;
+        font-size: 100px;
+        text-decoration: underline white double;
+      "
+    >
+      BILL BUDDY
+    </h1>
+    <h2
+      style="
+        text-align: center;
+        font-size: 50px;
+        text-decoration: underline white solid;
+      "
+    >
+      {{ transaction }}
+    </h2>
+    <h3
+      style="
+        text-align: center;
+        font-size: 30px;
+        text-decoration: underline white solid;
+      "
+    >
+      STARTED BY: {{ user }}
+    </h3>
+
+    <div class="transaction-details">
+      <ul
+        style="
+          list-style-type: none;
+          margin-left: -3vw;
+          border: 0.5em #00623f groove;
+          border-radius: 10%;
+        "
+      >
+        {% for member in members: %}
+        <li style="text-align: center; display: list-item">
+          <p>
+            {{ member.name }} {% if member.status == "paid": %}
+            <span class="color-box" style="background-color: green"></span>
+            {% else: %}
+            <span class="color-box" style="background-color: red"></span>
+            {% endif %}
+          </p>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="chart" style="border: 0.5em #00623f groove; border-radius: 10%">
+      <p id="mem_json" style="display: none">{{ trans_json }}</p>
+      <canvas id="payments"></canvas>
+      <script>
+        var value = "{{ value|tojson }}";
+        var members = document.getElementById("mem_json").innerHTML;
+        var mem = JSON.parse(members);
+        names = [];
+        values = [];
+        colors = [];
+        var prim = 251;
+        var sec = 247;
+        for (var i = 0; i < mem.length; i++) {
+          names.push(mem[i].name);
+          values.push(value);
+          var gc =
+            "#" + sec.toString(16) + prim.toString(16) + sec.toString(16);
+          var rc =
+            "#" + prim.toString(16) + sec.toString(16) + sec.toString(16);
+          if (mem[i].status == "paid") colors.push(gc);
+          else colors.push(rc);
+          prim = prim - 4;
+          sec = sec - 8;
+        }
+
+        var ctx = document.getElementById("payments").getContext("2d");
+        var pay_chart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: names,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: colors,
+              },
+            ],
+          },
+        });
+      </script>
+    </div>
+    <!-- <footer style="margin-bottom: 0">&copy; My Flask App 2023</footer> -->
+  </body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <!-- <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    /> -->
+    <style>
+      body {
+        background-color: #000000;
+        color: #ffffff;
+      }
+
+      a,
+      .footer {
+        color: #00623f;
+      }
+
+      h1 {
+        color: #ffffff;
+      }
+
+      li {
+        display: inline-block;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+        <li><a href="/my_expenses">My Expenses</a></li>
+      </ul>
+    </nav>
+    <h1
+      style="
+        text-align: center;
+        font-size: 100px;
+        text-decoration: underline white double;
+      "
+    >
+      BILL BUDDY
+    </h1>
+    <main>{% block content %}{% endblock %}</main>
+    <!-- <footer style="margin-bottom: 0">&copy; My Flask App 2023</footer> -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
